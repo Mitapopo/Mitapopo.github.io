@@ -4,20 +4,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电子爱好者的个人博客</title>
-    <meta name="description" content="电子爱好者的软硬件开发博客，分享嵌入式系统、Arduino、树莓派等项目经验">
+    <title>ROS 2 嵌入式开发指南</title>
+    <meta name="description" content="ROS 2 嵌入式系统开发文档，分享ESP32/STM32等嵌入式平台的ROS 2应用开发经验">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ROS 2 官方文档配色方案 - 完全匹配ROS 2官方文档 */
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --dark-color: #2c3e50;
-            --light-color: #ecf0f1;
-            --accent-color: #e74c3c;
-            --text-color: #333;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
+            --primary-color: #00a8e1;
+            --primary-hover: #0088b3;
+            --secondary-color: #00a8e1;
+            --dark-color: #222222;
+            --light-color: #ffffff;
+            --text-color: #222222;
+            --border-color: #dddddd;
+            --header-bg: #00a8e1;
+            --sidebar-bg: #2f3337;
+            --hover-color: #3a3f44;
+            --code-bg: #f6f8fa;
+            --table-header-bg: #f6f8fa;
+            --table-border: #eaecef;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --error-color: #dc3545;
         }
 
         * {
@@ -27,256 +35,463 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             line-height: 1.6;
             color: var(--text-color);
-            background-color: #f9f9f9;
-            background-image:
-                radial-gradient(#bdc3c7 1px, transparent 1px),
-                radial-gradient(#bdc3c7 1px, transparent 1px);
-            background-size: 50px 50px;
-            background-position: 0 0, 25px 25px;
+            background-color: var(--light-color);
+            font-size: 16px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* 应用容器 */
-        .app-container {
+        /* 主容器结构 */
+        .doc-container {
             display: flex;
             min-height: 100vh;
+            flex-direction: column;
         }
 
-        /* 左侧导航栏样式 */
-        .sidebar {
-            background-color: var(--dark-color);
-            color: white;
-            width: 280px;
-            position: fixed;
+        /* 顶部导航栏 */
+        .header {
+            background-color: var(--header-bg);
+            border-bottom: none;
+            padding: 0 1rem;
+            position: sticky;
             top: 0;
-            left: 0;
-            height: 100vh;
-            z-index: 1000;
-            box-shadow: var(--box-shadow);
-            overflow-y: auto;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
 
-        .logo-container {
-            padding: 2rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        .header-content {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            height: 32px;
         }
 
         .logo h1 {
-            font-size: 1.8rem;
+            font-size: 1.2rem;
+            color: white;
             margin: 0;
-            color: var(--light-color);
         }
 
-        .sidebar nav {
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding: 8px 12px 8px 35px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            width: 250px;
+            font-size: 0.9rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .version-selector {
+            padding: 6px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* 主要内容区域 */
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 280px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 60px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
             padding: 1rem 0;
         }
 
-        .sidebar .nav-links {
+        .nav-section-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #cccccc;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .nav-list {
             list-style: none;
-            padding: 0;
+            margin-bottom: 1rem;
+        }
+
+        .nav-item {
             margin: 0;
         }
 
-        .sidebar .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 1rem 2rem;
-            color: var(--light-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .sidebar .nav-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background-color: rgba(46, 204, 113, 0.1);
-            transition: width 0.3s ease;
-        }
-
-        .sidebar .nav-link:hover::before {
-            width: 100%;
-        }
-
-        .sidebar .nav-link i {
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar .nav-link:hover i {
-            transform: translateX(5px);
-        }
-
-        .sidebar .nav-link i {
-            margin-right: 1rem;
-            font-size: 1.2rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        .sidebar .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--secondary-color);
-        }
-
-        .sidebar .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--secondary-color);
-            border-left-color: var(--secondary-color);
-        }
-
-        /* 主内容区域 */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            min-height: 100vh;
-        }
-
-        /* 页面内容容器 */
-        .page-content {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        .page-content.active {
+        .nav-link {
             display: block;
-            opacity: 1;
+            padding: 0.5rem 1.5rem;
+            color: #f0f0f0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease;
+            border-left: 3px solid transparent;
         }
 
-        /* 英雄区域样式 */
-        .hero {
-            background: linear-gradient(135deg, var(--dark-color) 0%, #34495e 100%);
+        .nav-link:hover {
+            background-color: var(--hover-color);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
             color: white;
-            padding: 6rem 0;
-            margin-top: 0;
-            position: relative;
-            overflow: hidden;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
+            border-left-color: var(--primary-color);
+            font-weight: 500;
         }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 10%),
-                radial-gradient(circle at 80% 60%, rgba(255, 255, 255, 0.1) 0%, transparent 15%),
-                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 12%);
+        /* 二级导航 */
+        .sub-nav-list {
+            list-style: none;
+            padding-left: 1rem;
         }
 
-        .hero-content {
-            position: relative;
-            z-index: 1;
+        .sub-nav-link {
+            padding: 0.3rem 1.5rem;
+            font-size: 0.9rem;
+            color: #cccccc;
+        }
+
+        .sub-nav-link:hover {
+            color: white;
+        }
+
+        .sub-nav-link.active {
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+
+        /* 右侧内容区域 */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            max-width: calc(100% - 280px);
+        }
+
+        /* 主内容区域样式 - ROS 2文档风格 */
+        .doc-content {
             max-width: 800px;
             margin: 0 auto;
-            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            min-height: calc(100vh - 120px);
         }
 
-        .hero h2 {
-            font-size: 3.5rem;
+        /* 标题样式 */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--dark-color);
+            margin-top: 2rem;
             margin-bottom: 1rem;
-            line-height: 1.2;
+            line-height: 1.3;
         }
 
-        .hero .highlight {
-            color: var(--secondary-color);
+        .doc-content h1 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+            font-size: 2.25rem;
+            font-weight: 600;
+            line-height: 1.3;
         }
 
-        .hero p {
+        .doc-content h2 {
+            color: var(--dark-color);
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3rem;
+        }
+
+        .doc-content h3 {
+            color: var(--dark-color);
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .doc-content p {
+            line-height: 1.7;
+            margin-bottom: 1.25rem;
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .doc-content ul,
+        .doc-content ol {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        .doc-content li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        /* 链接样式 */
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+
+        /* 代码块样式 - ROS 2文档风格 */
+        pre {
+            background-color: var(--code-bg);
+            border-radius: 4px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            background-color: var(--code-bg);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+        }
+
+        /* 表格样式 */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        table th {
+            background-color: var(--table-header-bg);
+            border: 1px solid var(--table-border);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            border: 1px solid var(--table-border);
+            padding: 0.75rem;
+        }
+
+        table tr:nth-child(even) {
+            background-color: var(--light-color);
+        }
+
+        /* 目录样式 - ROS 2文档风格 */
+        .toc {
+            background-color: var(--sidebar-bg);
+            border-radius: 4px;
+            padding: 1.25rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .toc-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+
+        .toc-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .toc-list li {
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .toc-list .toc-h2 {
+            font-weight: 500;
+        }
+
+        .toc-list .toc-h3 {
+            padding-left: 1.5rem;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .toc-h4 {
+            padding-left: 3rem;
+            font-size: 0.9rem;
+        }
+
+        .toc-list a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s;
+            display: block;
+            padding: 0.2rem 0;
+        }
+
+        .toc-list a:hover {
+            color: var(--primary-color);
+        }
+
+        /* 引用样式 */
+        blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+            color: #555;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .card-title {
             font-size: 1.2rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
         }
 
+        /* 注意框样式 */
+        .note,
+        .warning,
+        .important {
+            padding: 1rem 1rem 1rem 3rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .note {
+            background-color: #f0f7fb;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .warning {
+            background-color: #fffbf0;
+            border-left: 4px solid #ffcc00;
+        }
+
+        .important {
+            background-color: #fbefef;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .note::before,
+        .warning::before,
+        .important::before {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+        }
+
+        .note::before {
+            content: '💡';
+        }
+
+        .warning::before {
+            content: '⚠️';
+        }
+
+        .important::before {
+            content: '❗';
+        }
+
+        /* 按钮样式 */
         .btn {
             display: inline-block;
             background-color: var(--secondary-color);
             color: white;
-            padding: 0.8rem 2rem;
-            border-radius: var(--border-radius);
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
             text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
             border: none;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-            z-index: -1;
-        }
-
-        .btn:hover::before {
-            left: 100%;
+            transition: background-color 0.2s ease;
         }
 
         .btn:hover {
-            background-color: #27ae60;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
+            background-color: var(--link-hover);
+            text-decoration: none;
         }
 
-        .btn:active {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(46, 204, 113, 0.3);
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--secondary-color);
+            color: var(--secondary-color);
         }
 
-        /* 通用部分样式 */
-        section {
-            padding: 6rem 0;
-        }
-
-        h2 {
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            text-align: center;
-            color: var(--dark-color);
-            position: relative;
-        }
-
-        h2::after {
-            content: '';
-            display: block;
-            width: 100px;
-            height: 4px;
-            background-color: var(--primary-color);
-            margin: 1rem auto 0;
-            border-radius: 2px;
+        .btn-outline:hover {
+            background-color: var(--secondary-color);
+            color: white;
         }
 
         /* 关于我样式 */
@@ -544,51 +759,12 @@
             text-align: center;
         }
 
-        /* 响应式设计 */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 250px;
-            }
-
-            .main-content {
-                margin-left: 250px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 250px;
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .hero h2 {
-                font-size: 2.5rem;
-            }
-
-            h2 {
-                font-size: 2rem;
-            }
-
-            section {
-                padding: 4rem 0;
-            }
-        }
-
         /* 汉堡菜单按钮 */
         .menu-toggle {
             font-size: 1.5rem;
             background: none;
             border: none;
-            color: var(--light-color);
+            color: white;
             cursor: pointer;
             display: none;
             padding: 0.5rem;
@@ -605,12 +781,6 @@
 
         .menu-toggle:active {
             transform: scale(0.95);
-        }
-
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
         }
 
         /* 移动端导航遮罩 */
@@ -631,421 +801,781 @@
             display: block;
             opacity: 1;
         }
+
+        /* 响应式布局 - 优化移动端体验 */
+        @media (max-width: 1200px) {
+            .content {
+                max-width: calc(100% - 240px);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+
+            .content {
+                max-width: calc(100% - 220px);
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            /* 移动端布局 */
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                background-color: var(--sidebar-bg);
+                z-index: 1000;
+                transition: left 0.3s ease;
+                overflow-y: auto;
+                padding-top: 60px;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar.mobile-active {
+                left: 0;
+                border-right: 1px solid #444;
+            }
+
+            .content {
+                max-width: 100%;
+                padding: 1rem;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .search-box,
+            .version-selector {
+                display: none;
+            }
+
+            .doc-content {
+                padding: 1.5rem 1rem;
+                margin: 0 auto;
+            }
+
+            .doc-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .doc-content h2 {
+                font-size: 1.5rem;
+            }
+
+            .doc-content h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                height: 50px;
+            }
+
+            .logo img {
+                height: 28px;
+            }
+
+            .logo h1 {
+                font-size: 1rem;
+            }
+
+            .doc-content {
+                padding: 1.25rem 0.8rem;
+            }
+
+            .toc {
+                padding: 1rem;
+            }
+
+            pre {
+                padding: 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            table th,
+            table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* 无障碍支持 */
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+
+            .sidebar,
+            .header,
+            .menu-toggle,
+            .version-selector {
+                display: none !important;
+            }
+
+            .content {
+                max-width: 100%;
+                padding: 0;
+            }
+
+            .doc-content {
+                box-shadow: none;
+                padding: 0;
+            }
+
+            a[href]:after {
+                content: " (" attr(href) ")";
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 选择文本样式 */
+        ::selection {
+            background-color: rgba(0, 168, 225, 0.2);
+            color: var(--dark-color);
+        }
+
+        /* 焦点样式 */
+        button:focus,
+        input:focus,
+        select:focus,
+        textarea:focus,
+        a:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
     </style>
 </head>
 
 <body>
-    <div class="app-container">
-        <!-- 左侧导航栏 -->
-        <aside class="sidebar" id="sidebar">
-            <div class="logo-container">
+    <div class="doc-container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="header-content">
                 <div class="logo">
-                    <h1>电子爱好者</h1>
+                    <img src="https://www.ros.org/wp-content/uploads/2013/10/ros_logo.png" alt="ROS 2 Logo" />
+                    <h1>ROS 2 嵌入式开发指南</h1>
                 </div>
-                <button class="menu-toggle" id="menuToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="搜索文档..." />
+                    </div>
+                    <select class="version-selector">
+                        <option value="humble">Humble Hawksbill</option>
+                        <option value="iron">Iron Irwini</option>
+                        <option value="jazzy">Jazzy Jalisco</option>
+                    </select>
+                </div>
             </div>
-            <nav>
-                <ul class="nav-links">
-                    <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> 首页</a></li>
-                    <li><a href="#about" class="nav-link"><i class="fas fa-user"></i> 关于我</a></li>
-                    <li><a href="#projects" class="nav-link"><i class="fas fa-project-diagram"></i> 项目</a></li>
-                    <li><a href="#skills" class="nav-link"><i class="fas fa-tools"></i> 技能</a></li>
-                    <li><a href="#contact" class="nav-link"><i class="fas fa-envelope"></i> 联系方式</a></li>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <div class="main-wrapper">
+            <!-- 左侧导航栏 -->
+            <nav class="sidebar">
+                <h3 class="nav-section-title">入门指南</h3>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#introduction" class="nav-link active">简介</a></li>
+                    <li class="nav-item"><a href="#installation" class="nav-link">环境搭建</a></li>
+                    <li class="nav-item"><a href="#basic-concepts" class="nav-link">ROS 2 基础概念</a></li>
+                </ul>
+
+                <h3 class="nav-section-title">嵌入式平台</h3>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#esp32" class="nav-link">ESP32 开发指南</a></li>
+                    <li class="nav-item">
+                        <a href="#stm32" class="nav-link">STM32 开发指南</a>
+                        <ul class="sub-nav-list">
+                            <li class="nav-item"><a href="#stm32-setup" class="sub-nav-link">环境配置</a></li>
+                            <li class="nav-item"><a href="#stm32-examples" class="sub-nav-link">示例程序</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a href="#raspberry-pi" class="nav-link">树莓派 开发指南</a></li>
+                </ul>
+
+                <h3 class="nav-section-title">高级主题</h3>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#microros" class="nav-link">micro-ROS 介绍</a></li>
+                    <li class="nav-item"><a href="#low-level" class="nav-link">底层驱动开发</a></li>
+                    <li class="nav-item"><a href="#performance" class="nav-link">性能优化</a></li>
+                    <li class="nav-item"><a href="#debugging" class="nav-link">调试技巧</a></li>
+                </ul>
+
+                <h3 class="nav-section-title">项目实战</h3>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="#smart-home" class="nav-link">智能家居控制系统</a></li>
+                    <li class="nav-item"><a href="#robot-control" class="nav-link">机器人控制系统</a></li>
+                    <li class="nav-item"><a href="#sensor-network" class="nav-link">传感器网络应用</a></li>
                 </ul>
             </nav>
-        </aside>
 
-        <!-- 主内容区域 -->
-        <main class="main-content">
-            <!-- 首页内容 -->
-            <div id="home" class="page-content active">
-                <section class="hero">
-                    <div class="container">
-                        <div class="hero-content">
-                            <h2>你好，我是<span class="highlight">小李（李工）</span></h2>
-                            <p>资深嵌入式系统工程师 | 开源硬件专家 | AIOT技术爱好者</p>
-                            <a href="#projects" class="btn">探索我的创新项目</a>
-                        </div>
+            <!-- 右侧内容区域 -->
+            <div class="content">
+                <div id="introduction" class="doc-content">
+                    <h1>ROS 2 嵌入式开发指南</h1>
+                    <div class="toc">
+                        <div class="toc-title">目录</div>
+                        <ul class="toc-list">
+                            <li class="toc-h2"><a href="#what-is-ros2">什么是 ROS 2？</a></li>
+                            <li class="toc-h2"><a href="#embedded-systems">嵌入式系统与 ROS 2 的结合</a></li>
+                            <li class="toc-h2"><a href="#supported-platforms">支持的嵌入式平台</a></li>
+                            <li class="toc-h3"><a href="#esp32-platform">ESP32 系列</a></li>
+                            <li class="toc-h3"><a href="#stm32-platform">STM32 系列</a></li>
+                            <li class="toc-h3"><a href="#raspberry-pi-platform">树莓派系列</a></li>
+                            <li class="toc-h2"><a href="#getting-started">开始使用本指南</a></li>
+                        </ul>
                     </div>
-                </section>
-            </div>
 
-            <!-- 关于我页面 -->
-            <div id="about" class="page-content">
-                <section class="about">
-                    <div class="container">
-                        <h2>关于我</h2>
-                        <div class="about-content">
-                            <div class="about-image">
-                                <img src="images/profile.svg" alt="个人头像"
-                                    style="width: 250px; height: 250px; border-radius: 50%; margin: 0 auto; object-fit: cover;">
-                            </div>
-                            <div class="about-text">
-                                <p>你好！我是小李，一名拥有8年经验的嵌入式系统工程师，专注于物联网和人工智能领域的硬件设计与软件开发。我热衷于将前沿技术应用到实际项目中，解决实际问题。</p>
-                                <p>我的专长包括低功耗嵌入式系统设计、传感器网络开发、边缘计算应用以及AI算法在资源受限设备上的优化实现。我精通Arduino、树莓派、STM32和各类IoT模块的开发与应用。
-                                </p>
-                                <p>在这个个人博客中，我分享我的项目经验、技术探索和学习心得。希望能够帮助到对电子技术和物联网感兴趣的朋友们，也欢迎与我交流合作！</p>
-                            </div>
+                    <section id="what-is-ros2">
+                        <h2>什么是 ROS 2？</h2>
+                        <p>机器人操作系统（ROS, Robot Operating System）是一个用于编写机器人软件的灵活框架。ROS 2 是 ROS 的第二代版本，是对第一代 ROS
+                            的重大改进和重新设计，提供了更好的实时性、安全性和跨平台支持。</p>
+                        <p>ROS 2 的主要特点包括：</p>
+                        <ul>
+                            <li>分布式架构，支持多机通信</li>
+                            <li>基于 DDS（Data Distribution Service）的通信系统</li>
+                            <li>支持实时控制应用场景</li>
+                            <li>更好的跨平台支持（Linux、Windows、macOS 等）</li>
+                            <li>改进的安全模型和权限管理</li>
+                            <li>更灵活的中间件抽象层</li>
+                        </ul>
+                    </section>
+
+                    <section id="embedded-systems">
+                        <h2>嵌入式系统与 ROS 2 的结合</h2>
+                        <p>将 ROS 2 部署到嵌入式系统上，可以实现更小型、更高效的机器人应用。通过 micro-ROS 等项目，开发者可以在资源受限的硬件上运行 ROS 2
+                            节点，实现传感器数据采集、执行器控制等功能。</p>
+                        <div class="note">
+                            <p><strong>micro-ROS</strong> 是一个将 ROS 2 生态系统扩展到微控制器的项目，允许在资源受限的硬件上运行 ROS 2 节点。</p>
                         </div>
-                    </div>
-                </section>
-            </div>
+                    </section>
 
-            <!-- 项目页面 -->
-            <div id="projects" class="page-content">
-                <section class="projects">
-                    <div class="container">
-                        <h2>我的项目</h2>
-                        <div class="project-grid">
-                            <!-- 项目1：智能家居控制系统 -->
-                            <div class="project-card">
-                                <div
-                                    style="width: 100%; height: 200px; display: flex; align-items: center; justify-content: center;">
-                                    <img src="images/smart-home.svg" alt="智能家居系统"
-                                        style="width: 180px; height: 180px; object-fit: contain;">
-                                </div>
-                                <div class="project-content">
-                                    <h3>基于ESP32的智能家居系统</h3>
-                                    <p>一个使用ESP32开发的全面智能家居控制系统，支持灯光控制、温度监控、安防报警等功能，可通过手机APP远程控制。</p>
-                                    <div class="project-tags">
-                                        <span class="project-tag">ESP32</span>
-                                        <span class="project-tag">物联网</span>
-                                        <span class="project-tag">Arduino</span>
-                                        <span class="project-tag">传感器</span>
-                                    </div>
-                                    <div class="project-links">
-                                        <a href="#" class="project-link">查看详情</a>
-                                        <a href="#" class="project-link">GitHub</a>
-                                    </div>
-                                </div>
-                            </div>
+                    <section id="supported-platforms">
+                        <h2>支持的嵌入式平台</h2>
+                        <p>本指南主要关注以下嵌入式平台的 ROS 2 开发：</p>
 
-                            <!-- 项目2：树莓派天气站 -->
-                            <div class="project-card">
-                                <div
-                                    style="width: 100%; height: 200px; background-color: #2ecc71; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                                    <i class="fas fa-cloud-sun"></i>
-                                </div>
-                                <div class="project-content">
-                                    <h3>树莓派自动气象站</h3>
-                                    <p>使用树莓派和多种传感器构建的自动气象站，可以实时监测温度、湿度、气压、风速等数据，并将数据上传到云端进行分析和展示。</p>
-                                    <div class="project-tags">
-                                        <span class="project-tag">树莓派</span>
-                                        <span class="project-tag">Python</span>
-                                        <span class="project-tag">气象站</span>
-                                        <span class="project-tag">数据分析</span>
-                                    </div>
-                                    <div class="project-links">
-                                        <a href="#" class="project-link">查看详情</a>
-                                        <a href="#" class="project-link">GitHub</a>
-                                    </div>
-                                </div>
-                            </div>
+                        <section id="esp32-platform">
+                            <h3>ESP32 系列</h3>
+                            <p>ESP32 是 Espressif 公司推出的一款低功耗高性能的 Wi-Fi 和蓝牙双模 SoC，具有强大的处理能力和丰富的外设接口，非常适合物联网和机器人应用。</p>
+                            <p>主要特点：</p>
+                            <ul>
+                                <li>双核心 240MHz Tensilica LX6 处理器</li>
+                                <li>520KB SRAM，支持外部闪存
+                                </li>
+                                <li>内置 Wi-Fi 和蓝牙功能
+                                </li>
+                                <li>丰富的 GPIO 和外设接口
+                                </li>
+                                <li>低功耗设计，支持多种睡眠模式
+                                </li>
+                            </ul>
+                        </section>
 
-                            <!-- 项目3：Arduino机器人 -->
-                            <div class="project-card">
-                                <div
-                                    style="width: 100%; height: 200px; background-color: #e74c3c; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                                    <i class="fas fa-robot"></i>
-                                </div>
-                                <div class="project-content">
-                                    <h3>Arduino智能循迹机器人</h3>
-                                    <p>基于Arduino开发的智能循迹机器人，配备红外传感器进行路径识别，支持避障功能和蓝牙遥控，适合初学者学习机器人编程。</p>
-                                    <div class="project-tags">
-                                        <span class="project-tag">Arduino</span>
-                                        <span class="project-tag">机器人</span>
-                                        <span class="project-tag">传感器</span>
-                                        <span class="project-tag">C++</span>
-                                    </div>
-                                    <div class="project-links">
-                                        <a href="#" class="project-link">查看详情</a>
-                                        <a href="#" class="project-link">GitHub</a>
-                                    </div>
-                                </div>
-                            </div>
+                        <section id="stm32-platform">
+                            <h3>STM32 系列</h3>
+                            <p>STM32 是意法半导体（STMicroelectronics）推出的基于 ARM Cortex-M 系列内核的 32 位微控制器，具有高性能、低功耗、丰富的外设等特点。</p>
+                            <p>主要系列：</p>
+                            <ul>
+                                <li>STM32F4：高性能系列，适合复杂计算任务
+                                </li>
+                                <li>STM32F7：具有 DSP 和浮点运算能力的高性能系列
+                                </li>
+                                <li>STM32H7：最新高性能系列，具有双精度浮点单元
+                                </li>
+                                <li>STM32L4：低功耗系列，适合电池供电应用
+                                </li>
+                            </ul>
+                        </section>
 
-                            <!-- 项目4：ESP8266温湿度监控系统 -->
-                            <div class="project-card">
-                                <div
-                                    style="width: 100%; height: 200px; background-color: #9b59b6; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                                    <i class="fas fa-thermometer-half"></i>
-                                </div>
-                                <div class="project-content">
-                                    <h3>基于ESP8266的远程温湿度监控系统</h3>
-                                    <p>使用ESP8266和DHT22传感器构建的温湿度监控系统，可以实时采集环境数据并上传到云端，支持手机APP查看历史数据。</p>
-                                    <div class="project-tags">
-                                        <span class="project-tag">ESP8266</span>
-                                        <span class="project-tag">DHT22</span>
-                                        <span class="project-tag">物联网</span>
-                                        <span class="project-tag">监控系统</span>
-                                    </div>
-                                    <div class="project-links">
-                                        <a href="#" class="project-link">查看详情</a>
-                                        <a href="#" class="project-link">GitHub</a>
-                                    </div>
-                                </div>
-                            </div>
+                        <section id="raspberry-pi-platform">
+                            <h3>树莓派系列</h3>
+                            <p>树莓派是一系列基于 ARM 的单板计算机，提供了完整的 Linux 运行环境，非常适合运行完整版的 ROS 2 系统。</p>
+                            <p>推荐型号：</p>
+                            <ul>
+                                <li>树莓派 4B：4GB 或 8GB RAM 版本，性能较强
+                                </li>
+                                <li>树莓派 3B+：性价比高，适合一般应用
+                                </li>
+                                <li>树莓派 Zero 2 W：小型化设计，适合空间受限的场景
+                                </li>
+                            </ul>
+                        </section>
+                    </section>
+
+                    <section id="getting-started">
+                        <h2>开始使用本指南</h2>
+                        <p>如果您是 ROS 2 和嵌入式开发的新手，我们建议按照以下顺序阅读本指南：</p>
+                        <ol>
+                            <li>首先阅读 <a href="#basic-concepts">ROS 2 基础概念</a> 部分，了解 ROS 2 的核心概念和术语
+                            </li>
+                            <li>按照 <a href="#installation">环境搭建</a> 指南，配置开发环境
+                            </li>
+                            <li>根据您使用的硬件平台，参考相应的平台开发指南
+                            </li>
+                            <li>最后，可以尝试 <a href="#smart-home">项目实战</a> 部分的示例项目
+                            </li>
+                        </ol>
+                        <div class="warning">
+                            <p>在开始嵌入式开发前，请确保您具备以下基础知识：</p>
+                            <ul>
+                                <li>C/C++ 编程语言基础
+                                </li>
+                                <li>嵌入式系统基础知识
+                                </li>
+                                <li>Linux 基本操作（对于树莓派等平台）</li>
+                            </ul>
                         </div>
-                    </div>
-                </section>
+                    </section>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <!-- 技能页面 -->
-            <div id="skills" class="page-content">
-                <section class="skills">
-                    <div class="container">
-                        <h2>技能</h2>
-                        <div class="skills-container">
-                            <div class="skill-tag"><i class="fab fa-arduino"></i> Arduino系统开发</div>
-                            <div class="skill-tag"><i class="fab fa-raspberry-pi"></i> 树莓派与边缘计算</div>
-                            <div class="skill-tag"><i class="fas fa-microchip"></i> ESP32/ESP8266 IoT开发</div>
-                            <div class="skill-tag"><i class="fas fa-code"></i> 嵌入式C/C++编程</div>
-                            <div class="skill-tag"><i class="fab fa-python"></i> Python数据处理</div>
-                            <div class="skill-tag"><i class="fas fa-wifi"></i> 无线通信技术</div>
-                            <div class="skill-tag"><i class="fas fa-robot"></i> 机器人控制系统</div>
-                            <div class="skill-tag"><i class="fas fa-tachometer-alt"></i> 传感器网络</div>
-                            <div class="skill-tag"><i class="fas fa-sitemap"></i> Altium Designer PCB设计</div>
-                            <div class="skill-tag"><i class="fas fa-chart-line"></i> 实时数据监控</div>
-                            <div class="skill-tag"><i class="fas fa-mobile-alt"></i> 移动端应用开发</div>
-                            <div class="skill-tag"><i class="fab fa-github"></i> 版本控制与协作</div>
-                            <div class="skill-tag"><i class="fas fa-microprocessor"></i> STM32系统开发</div>
-                            <div class="skill-tag"><i class="fas fa-network-wired"></i> 低功耗广域网(LPWAN)</div>
-                            <div class="skill-tag"><i class="fas fa-database"></i> 时序数据库应用</div>
-                            <div class="skill-tag"><i class="fas fa-cloud"></i> 云平台集成</div>
-                        </div>
-                    </div>
-                </section>
-            </div>
+    <!-- 其他文档内容部分 -->
+    <div id="esp32" class="doc-content" style="display: none;">
+        <h1>ESP32 开发指南</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#esp32-overview">ESP32 概述</a></li>
+                <li class="toc-h2"><a href="#esp32-setup">开发环境设置</a></li>
+                <li class="toc-h2"><a href="#esp32-microros">在 ESP32 上运行 micro-ROS</a></li>
+                <li class="toc-h2"><a href="#esp32-examples">示例程序</a></li>
+            </ul>
+        </div>
 
-            <!-- 联系方式页面 -->
-            <div id="contact" class="page-content">
-                <section class="contact">
-                    <div class="container">
-                        <h2>联系我</h2>
-                        <div class="contact-info">
-                            <div class="contact-item">
-                                <i class="fab fa-github"></i>
-                                <h3>GitHub</h3>
-                                <p><a href="https://github.com/lxg-embedded"
-                                        target="_blank">https://github.com/lxg-embedded</a></p>
-                            </div>
-                            <div class="contact-item">
-                                <i class="fas fa-envelope"></i>
-                                <h3>邮箱</h3>
-                                <p><a href="mailto:lxg.engineer@outlook.com">lxg.engineer@outlook.com</a>
-                                </p>
-                            </div>
-                            <div class="contact-item">
-                                <i class="fab fa-weixin"></i>
-                                <h3>微信</h3>
-                                <p>LXGElectronics</p>
-                            </div>
-                            <div class="contact-item">
-                                <i class="fab fa-zhihu"></i>
-                                <h3>知乎专栏</h3>
-                                <p><a href="https://www.zhihu.com/people/lxg-tech" target="_blank">小李嵌入式技术笔记</a></p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
+        <!-- ESP32 内容将在这里添加 -->
+    </div>
+
+    <div id="stm32" class="doc-content" style="display: none;">
+        <h1>STM32 开发指南</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#stm32-overview">STM32 概述</a></li>
+                <li class="toc-h2"><a href="#stm32-setup">开发环境设置</a></li>
+                <li class="toc-h2"><a href="#stm32-microros">在 STM32 上运行 micro-ROS</a></li>
+                <li class="toc-h2"><a href="#stm32-examples">示例程序</a></li>
+            </ul>
+        </div>
+
+        <!-- STM32 内容将在这里添加 -->
+    </div>
+
+    <div id="stm32-setup" class="doc-content" style="display: none;">
+        <h1>STM32 环境配置</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#stm32-tools">必要工具安装</a></li>
+                <li class="toc-h2"><a href="#stm32-toolchain">编译工具链配置</a></li>
+                <li class="toc-h2"><a href="#stm32-ide">IDE 配置</a></li>
+            </ul>
+        </div>
+
+        <!-- STM32 设置内容将在这里添加 -->
+    </div>
+
+    <div id="stm32-examples" class="doc-content" style="display: none;">
+        <h1>STM32 示例程序</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#stm32-blink">LED 闪烁示例</a></li>
+                <li class="toc-h2"><a href="#stm32-sensor">传感器读取示例</a></li>
+                <li class="toc-h2"><a href="#stm32-ros2">ROS 2 发布者示例</a></li>
+            </ul>
+        </div>
+
+        <!-- STM32 示例内容将在这里添加 -->
+    </div>
+
+    <div id="raspberry-pi" class="doc-content" style="display: none;">
+        <h1>树莓派 开发指南</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#raspberry-overview">树莓派概述</a></li>
+                <li class="toc-h2"><a href="#raspberry-ros2">安装 ROS 2</a></li>
+                <li class="toc-h2"><a href="#raspberry-projects">项目示例</a></li>
+            </ul>
+        </div>
+
+        <!-- 树莓派内容将在这里添加 -->
+    </div>
+
+    <div id="microros" class="doc-content" style="display: none;">
+        <h1>micro-ROS 介绍</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#microros-overview">micro-ROS 概述</a></li>
+                <li class="toc-h2"><a href="#microros-architecture">架构设计</a></li>
+                <li class="toc-h2"><a href="#microros-install">安装与配置</a></li>
+                <li class="toc-h2"><a href="#microros-tutorial">入门教程</a></li>
+            </ul>
+        </div>
+
+        <!-- micro-ROS 内容将在这里添加 -->
+    </div>
+
+    <div id="low-level" class="doc-content" style="display: none;">
+        <h1>底层驱动开发</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#driver-overview">驱动开发概述</a></li>
+                <li class="toc-h2"><a href="#i2c-spi">I2C/SPI 通信</a></li>
+                <li class="toc-h2"><a href="#uart">UART 通信</a></li>
+                <li class="toc-h2"><a href="#gpio">GPIO 编程</a></li>
+            </ul>
+        </div>
+
+        <!-- 底层驱动内容将在这里添加 -->
+    </div>
+
+    <div id="performance" class="doc-content" style="display: none;">
+        <h1>性能优化</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#perf-metrics">性能指标</a></li>
+                <li class="toc-h2"><a href="#memory-optimization">内存优化</a></li>
+                <li class="toc-h2"><a href="#cpu-optimization">CPU 使用优化</a></li>
+                <li class="toc-h2"><a href="#power-optimization">功耗优化</a></li>
+            </ul>
+        </div>
+
+        <!-- 性能优化内容将在这里添加 -->
+    </div>
+
+    <div id="debugging" class="doc-content" style="display: none;">
+        <h1>调试技巧</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#debug-tools">调试工具</a></li>
+                <li class="toc-h2"><a href="#serial-debug">串口调试</a></li>
+                <li class="toc-h2"><a href="#ros-debug">ROS 2 调试方法</a></li>
+                <li class="toc-h2"><a href="#common-issues">常见问题排查</a></li>
+            </ul>
+        </div>
+
+        <!-- 调试技巧内容将在这里添加 -->
+    </div>
+
+    <div id="smart-home" class="doc-content" style="display: none;">
+        <h1>智能家居控制系统</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#smarthome-overview">项目概述</a></li>
+                <li class="toc-h2"><a href="#smarthome-hardware">硬件设计</a></li>
+                <li class="toc-h2"><a href="#smarthome-software">软件实现</a></li>
+                <li class="toc-h2"><a href="#smarthome-ros">ROS 2 集成</a></li>
+            </ul>
+        </div>
+
+        <!-- 智能家居项目内容将在这里添加 -->
+    </div>
+
+    <div id="robot-control" class="doc-content" style="display: none;">
+        <h1>机器人控制系统</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#robot-overview">项目概述</a></li>
+                <li class="toc-h2"><a href="#robot-kinematics">运动学建模</a></li>
+                <li class="toc-h2"><a href="#robot-ros2">ROS 2 控制节点</a></li>
+                <li class="toc-h2"><a href="#robot-simulation">仿真与测试</a></li>
+            </ul>
+        </div>
+
+        <!-- 机器人控制项目内容将在这里添加 -->
+    </div>
+
+    <div id="sensor-network" class="doc-content" style="display: none;">
+        <h1>传感器网络应用</h1>
+        <div class="toc">
+            <div class="toc-title">目录</div>
+            <ul class="toc-list">
+                <li class="toc-h2"><a href="#sensor-overview">项目概述</a></li>
+                <li class="toc-h2"><a href="#sensor-hardware">传感器选型</a></li>
+                <li class="toc-h2"><a href="#sensor-network">网络拓扑</a></li>
+                <li class="toc-h2"><a href="#sensor-ros">ROS 2 数据融合</a></li>
+            </ul>
+        </div>
+
+        <!-- 传感器网络项目内容将在这里添加 -->
+    </div>
+    </div>
+    </div>
     </div>
 
     <!-- 页脚 -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 小李嵌入式技术空间 | 分享嵌入式系统与物联网技术</p>
+    <footer
+        style="background-color: var(--header-bg); border-top: 1px solid var(--border-color); padding: 1.5rem 0; text-align: center; font-size: 0.9rem; color: #666;">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 0 1rem;">
+            <p>&copy; 2024 ROS 2 嵌入式开发指南 | 嵌入式系统与机器人操作系统技术文档</p>
+            <p style="margin-top: 0.5rem;">基于 ROS 2 官方文档风格设计</p>
         </div>
     </footer>
 
-    <!-- 移动端导航遮罩层 -->
-    <div class="mobile-overlay" id="mobileOverlay"></div>
-
     <script>
-        // 获取DOM元素
-        const sidebar = document.getElementById('sidebar');
-        const menuToggle = document.getElementById('menuToggle');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        const navLinks = document.querySelectorAll('.nav-link');
-        const pageContents = document.querySelectorAll('.page-content');
+        // 初始化文档功能
+        document.addEventListener('DOMContentLoaded', function () {
+            // 侧边栏切换功能
+            const menuToggle = document.querySelector('.menu-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            const mobileOverlay = document.querySelector('.mobile-overlay');
+            const navLinks = document.querySelectorAll('.nav-link, .sub-nav-link');
+            const docContents = document.querySelectorAll('.doc-content');
+            const subNavLists = document.querySelectorAll('.sub-nav-list');
 
-        // 汉堡菜单切换功能
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-            mobileOverlay.classList.toggle('active');
-        });
-
-        // 点击遮罩层关闭侧边栏
-        mobileOverlay.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            mobileOverlay.classList.remove('active');
-        });
-
-        // 页面切换功能
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-
-                // 获取目标页面ID
-                const targetId = link.getAttribute('href').substring(1);
-
-                // 移除所有活动状态
-                navLinks.forEach(item => item.classList.remove('active'));
-                pageContents.forEach(page => page.classList.remove('active'));
-
-                // 添加当前活动状态
-                link.classList.add('active');
-                const targetPage = document.getElementById(targetId);
-                if (targetPage) {
-                    targetPage.classList.add('active');
+            // 切换侧边栏显示
+            function toggleSidebar() {
+                sidebar.classList.toggle('mobile-active');
+                if (mobileOverlay) {
+                    mobileOverlay.classList.toggle('active');
                 }
+                document.body.classList.toggle('sidebar-open');
+            }
 
-                // 在移动设备上点击导航后关闭侧边栏
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('active');
+            // 关闭侧边栏
+            function closeSidebar() {
+                sidebar.classList.remove('mobile-active');
+                if (mobileOverlay) {
                     mobileOverlay.classList.remove('active');
                 }
-
-                // 滚动到页面顶部
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                // 重置并重新触发动画
-                resetAnimations();
-            });
-        });
-
-        // 响应式处理
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                sidebar.classList.remove('active');
-                mobileOverlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             }
-        });
 
-        // 滚动动画效果
-        function revealElements() {
-            const reveals = document.querySelectorAll('.project-card, .skill-tag, .contact-item');
-
-            reveals.forEach(element => {
-                const windowHeight = window.innerHeight;
-                const elementTop = element.getBoundingClientRect().top;
-                const elementVisible = 150;
-
-                if (elementTop < windowHeight - elementVisible) {
-                    element.classList.add('revealed');
-                }
-            });
-        }
-
-        // 初始样式添加
-        document.addEventListener('DOMContentLoaded', () => {
-            // 为动画元素添加初始样式
-            const animatedElements = document.querySelectorAll('.project-card, .skill-tag, .contact-item');
-            animatedElements.forEach(element => {
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(30px)';
-                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-            });
-
-            // 页面加载时触发一次
-            revealElements();
-        });
-
-        // 页面切换时重新触发动画
-        function resetAnimations() {
-            const animatedElements = document.querySelectorAll('.project-card, .skill-tag, .contact-item');
-            animatedElements.forEach(element => {
-                element.classList.remove('revealed');
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(30px)';
-            });
-
-            // 短暂延迟后重新触发动画
-            setTimeout(revealElements, 100);
-        }
-
-        // 滚动时触发动画
-        window.addEventListener('scroll', revealElements);
-
-        // 添加revealed类的样式
-        const style = document.createElement('style');
-        style.textContent = `
-            .project-card.revealed,
-            .skill-tag.revealed,
-            .contact-item.revealed {
-                opacity: 1;
-                transform: translateY(0);
+            // 绑定事件
+            if (menuToggle) {
+                menuToggle.addEventListener('click', toggleSidebar);
             }
-            
-            // 为小屏幕设备添加导航菜单样式
-            @media (max-width: 768px) {
-                .nav-links {
-                    position: fixed;
-                    top: 70px;
-                    left: 0;
-                    width: 100%;
-                    background-color: var(--dark-color);
-                    flex-direction: column;
-                    align-items: center;
-                    max-height: 0;
-                    overflow: hidden;
-                    transition: max-height 0.3s ease;
-                    padding: 0;
-                }
-                
-                .nav-links.active {
-                    max-height: 300px;
-                    padding: 1rem 0;
-                }
-                
-                .nav-links li {
-                    margin: 0.5rem 0;
-                }
-                
-                .nav-links a {
-                    display: block;
-                    width: 100%;
-                    text-align: center;
-                    padding: 0.8rem 0;
-                }
+
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', closeSidebar);
             }
-            
-            // 高亮当前导航项
-            .nav-links a.active {
-                color: var(--secondary-color);
-                font-weight: 600;
-            }
-        `;
-        document.head.appendChild(style);
 
-        // 优化的滚动监听，高亮当前导航项
-        window.addEventListener('scroll', () => {
-            // 只在主内容区滚动时处理
-            if (window.innerWidth > 768) {
-                const sections = document.querySelectorAll('section');
-                const navItems = document.querySelectorAll('.nav-link');
+            // 响应式调整
+            function handleResponsive() {
+                const isMobile = window.innerWidth <= 768;
 
-                let current = '';
-
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (window.scrollY >= sectionTop - 150) {
-                        current = section.parentElement.getAttribute('id');
+                if (isMobile) {
+                    // 移动视图 - 确保侧边栏初始关闭
+                    closeSidebar();
+                    // 添加触摸滑动支持
+                    initTouchSwipe();
+                } else {
+                    // 桌面视图 - 移除移动类
+                    sidebar.classList.remove('mobile-active');
+                    if (mobileOverlay) {
+                        mobileOverlay.classList.remove('active');
                     }
+                    document.body.classList.remove('sidebar-open');
+                    // 侧边栏总是可见
+                    sidebar.style.left = '';
+                }
+            }
+
+            // 触摸滑动支持
+            function initTouchSwipe() {
+                let startX, moveX;
+                const minSwipeDistance = 50;
+
+                document.addEventListener('touchstart', function (e) {
+                    startX = e.touches[0].clientX;
                 });
 
-                if (current) {
-                    navItems.forEach(item => {
-                        item.classList.remove('active');
-                        if (item.getAttribute('href') === '#' + current) {
-                            item.classList.add('active');
+                document.addEventListener('touchmove', function (e) {
+                    if (!startX) return;
+                    moveX = e.touches[0].clientX;
+                });
+
+                document.addEventListener('touchend', function () {
+                    if (!startX || !moveX) return;
+
+                    const diff = startX - moveX;
+
+                    // 从右向左滑动，打开侧边栏
+                    if (diff < -minSwipeDistance && !sidebar.classList.contains('mobile-active')) {
+                        toggleSidebar();
+                    }
+                    // 从左向右滑动，关闭侧边栏
+                    else if (diff > minSwipeDistance && sidebar.classList.contains('mobile-active')) {
+                        closeSidebar();
+                    }
+
+                    // 重置
+                    startX = null;
+                    moveX = null;
+                });
+            }
+
+            // 导航链接处理
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    // 关闭移动侧边栏
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+
+                    // 获取目标ID
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+
+                    if (targetElement) {
+                        e.preventDefault();
+
+                        // 隐藏所有文档内容
+                        docContents.forEach(content => {
+                            content.style.display = 'none';
+                        });
+
+                        // 显示目标内容
+                        targetElement.style.display = 'block';
+
+                        // 更新活动状态
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // 平滑滚动到顶部
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            });
+
+            // 处理子导航展开/折叠
+            const mainNavItems = document.querySelectorAll('.nav-item:has(.sub-nav-list)');
+            mainNavItems.forEach(item => {
+                const mainLink = item.querySelector('.nav-link');
+                const subNavList = item.querySelector('.sub-nav-list');
+
+                // 添加展开/折叠图标
+                const toggleIcon = document.createElement('span');
+                toggleIcon.className = 'toggle-icon';
+                toggleIcon.textContent = ' ▶';
+                mainLink.appendChild(toggleIcon);
+
+                // 点击主链接时展开/折叠子导航
+                mainLink.addEventListener('click', function (e) {
+                    if (subNavList && !e.target.closest('.sub-nav-link')) {
+                        e.preventDefault();
+                        const isOpen = subNavList.style.display === 'block';
+                        subNavList.style.display = isOpen ? 'none' : 'block';
+                        toggleIcon.textContent = isOpen ? ' ▶' : ' ▼';
+                    }
+                });
+            });
+
+            // 搜索功能（简化版）
+            const searchInput = document.querySelector('.search-box input');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function (e) {
+                    if (e.key === 'Enter') {
+                        alert('搜索功能：' + this.value);
+                        // 实际项目中可以实现更复杂的搜索逻辑
+                    }
+                });
+            }
+
+            // 版本切换功能
+            const versionSelector = document.querySelector('.version-selector');
+            if (versionSelector) {
+                versionSelector.addEventListener('change', function () {
+                    alert('切换到版本：' + this.value);
+                    // 实际项目中可以实现版本切换逻辑
+                });
+            }
+
+            // 自动隐藏侧边栏（在小屏幕上）
+            function autoHideSidebarOnContentClick() {
+                const contentArea = document.querySelector('.content');
+                if (contentArea) {
+                    contentArea.addEventListener('click', function (e) {
+                        // 确保点击不是导航链接或其子元素
+                        if (window.innerWidth <= 768 &&
+                            sidebar.classList.contains('mobile-active') &&
+                            !e.target.closest('.nav-link')) {
+                            closeSidebar();
                         }
                     });
                 }
             }
+
+            // 键盘导航支持
+            function addKeyboardNavigation() {
+                document.addEventListener('keydown', function (e) {
+                    // ESC 键关闭侧边栏
+                    if (e.key === 'Escape' && sidebar.classList.contains('mobile-active')) {
+                        closeSidebar();
+                    }
+                    // 左右箭头键导航
+                    else if (e.key === 'ArrowRight' && window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                    else if (e.key === 'ArrowLeft' && window.innerWidth <= 768 &&
+                        !sidebar.classList.contains('mobile-active')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+
+            // 初始化函数
+            function init() {
+                handleResponsive();
+                autoHideSidebarOnContentClick();
+                addKeyboardNavigation();
+            }
+
+            // 事件监听
+            window.addEventListener('resize', handleResponsive);
+
+            // 启动初始化
+            init();
+
+            // 平滑滚动设置
+            document.documentElement.style.scrollBehavior = 'smooth';
         });
     </script>
 </body>
