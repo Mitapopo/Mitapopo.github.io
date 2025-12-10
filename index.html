@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子爱好者的个人博客</title>
+    <meta name="description" content="电子爱好者的软硬件开发博客，分享嵌入式系统、Arduino、树莓派等项目经验">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --accent-color: #e74c3c;
+            --text-color: #333;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f9f9f9;
+            background-image:
+                radial-gradient(#bdc3c7 1px, transparent 1px),
+                radial-gradient(#bdc3c7 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: 0 0, 25px 25px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 导航栏样式 */
+        header {
+            background-color: var(--dark-color);
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: var(--box-shadow);
+        }
+
+        nav {
+            padding: 1rem 0;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: var(--light-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            color: var(--light-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--secondary-color);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* 英雄区域样式 */
+        .hero {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #34495e 100%);
+            color: white;
+            padding: 10rem 0 6rem;
+            margin-top: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 10%),
+                radial-gradient(circle at 80% 60%, rgba(255, 255, 255, 0.1) 0%, transparent 15%),
+                radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 12%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero .highlight {
+            color: var(--secondary-color);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.8rem 2rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        /* 通用部分样式 */
+        section {
+            padding: 6rem 0;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--dark-color);
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background-color: var(--primary-color);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        /* 关于我样式 */
+        .about {
+            background-color: white;
+        }
+
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .about-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .about-text p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        /* 项目展示样式 */
+        .projects {
+            background-color: var(--light-color);
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-content h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: var(--dark-color);
+        }
+
+        .project-content p {
+            margin-bottom: 1.5rem;
+            color: #666;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-tag {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .project-link {
+            flex: 1;
+            text-align: center;
+            padding: 0.6rem;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .project-link:hover {
+            background-color: #2980b9;
+        }
+
+        /* 技能样式 */
+        .skills {
+            background-color: white;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .skill-tag {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .skill-tag:hover {
+            transform: translateY(-3px);
+            background-color: #2980b9;
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        /* 联系方式样式 */
+        .contact {
+            background-color: var(--dark-color);
+            color: white;
+        }
+
+        .contact h2 {
+            color: white;
+        }
+
+        .contact h2::after {
+            background-color: var(--secondary-color);
+        }
+
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .contact-item {
+            flex: 1;
+            min-width: 200px;
+            padding: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .contact-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .contact-item i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .contact-item h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .contact-item a {
+            color: var(--light-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .contact-item a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* 页脚样式 */
+        footer {
+            background-color: #233140;
+            color: var(--light-color);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h2 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            section {
+                padding: 4rem 0;
+            }
+        }
+
+        /* 添加响应式汉堡菜单图标 */
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--light-color);
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            nav {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <header>
+        <nav>
+            <div class="container">
+                <div class="logo">
+                    <h1>电子爱好者</h1>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-links" id="navLinks">
+                    <li><a href="#about">关于我</a></li>
+                    <li><a href="#projects">项目</a></li>
+                    <li><a href="#skills">技能</a></li>
+                    <li><a href="#contact">联系方式</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>你好，我是<span class="highlight">电子爱好者</span></h2>
+                <p>软硬件开发者 | 嵌入式系统工程师 | DIY创客</p>
+                <a href="#projects" class="btn">查看我的项目</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 关于我 -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2>关于我</h2>
+            <div class="about-content">
+                <div class="about-image">
+                    <div
+                        style="width: 250px; height: 250px; background-color: var(--primary-color); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 8rem;">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                </div>
+                <div class="about-text">
+                    <p>你好！我是一名热衷于电子技术的软硬件开发者，拥有多年嵌入式系统开发经验。我专注于将复杂的技术概念转化为实用的电子项目，并通过开源社区分享我的知识。</p>
+                    <p>我的技术栈涵盖Arduino、树莓派、ESP32等开源硬件平台，以及C/C++、Python、JavaScript等编程语言。我特别擅长设计智能家居系统、物联网设备和自动化控制方案。</p>
+                    <p>在这个博客中，你可以找到详细的项目教程、电路设计指南、编程技巧分享以及最新的电子技术资讯。欢迎与我交流讨论！</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 项目展示 -->
+    <section id="projects" class="projects">
+        <div class="container">
+            <h2>我的项目</h2>
+            <div class="project-grid">
+                <!-- 项目1：智能家居控制系统 -->
+                <div class="project-card">
+                    <div
+                        style="width: 100%; height: 200px; background-color: #3498db; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3>基于ESP32的智能家居系统</h3>
+                        <p>一个使用ESP32开发的全面智能家居控制系统，支持灯光控制、温度监控、安防报警等功能，可通过手机APP远程控制。</p>
+                        <div class="project-tags">
+                            <span class="project-tag">ESP32</span>
+                            <span class="project-tag">物联网</span>
+                            <span class="project-tag">Arduino</span>
+                            <span class="project-tag">传感器</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link">查看详情</a>
+                            <a href="#" class="project-link">GitHub</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目2：树莓派天气站 -->
+                <div class="project-card">
+                    <div
+                        style="width: 100%; height: 200px; background-color: #2ecc71; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3>树莓派自动气象站</h3>
+                        <p>使用树莓派和多种传感器构建的自动气象站，可以实时监测温度、湿度、气压、风速等数据，并将数据上传到云端进行分析和展示。</p>
+                        <div class="project-tags">
+                            <span class="project-tag">树莓派</span>
+                            <span class="project-tag">Python</span>
+                            <span class="project-tag">气象站</span>
+                            <span class="project-tag">数据分析</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link">查看详情</a>
+                            <a href="#" class="project-link">GitHub</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目3：Arduino机器人 -->
+                <div class="project-card">
+                    <div
+                        style="width: 100%; height: 200px; background-color: #e74c3c; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3>Arduino智能循迹机器人</h3>
+                        <p>基于Arduino开发的智能循迹机器人，配备红外传感器进行路径识别，支持避障功能和蓝牙遥控，适合初学者学习机器人编程。</p>
+                        <div class="project-tags">
+                            <span class="project-tag">Arduino</span>
+                            <span class="project-tag">机器人</span>
+                            <span class="project-tag">传感器</span>
+                            <span class="project-tag">C++</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="project-link">查看详情</a>
+                            <a href="#" class="project-link">GitHub</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能 -->
+    <section id="skills" class="skills">
+        <div class="container">
+            <h2>技能</h2>
+            <div class="skills-container">
+                <div class="skill-tag"><i class="fab fa-arduino"></i> Arduino开发</div>
+                <div class="skill-tag"><i class="fab fa-raspberry-pi"></i> 树莓派开发</div>
+                <div class="skill-tag"><i class="fas fa-microchip"></i> ESP32/ESP8266</div>
+                <div class="skill-tag"><i class="fas fa-code"></i> C/C++编程</div>
+                <div class="skill-tag"><i class="fab fa-python"></i> Python编程</div>
+                <div class="skill-tag"><i class="fas fa-wifi"></i> 物联网技术</div>
+                <div class="skill-tag"><i class="fas fa-robot"></i> 机器人编程</div>
+                <div class="skill-tag"><i class="fas fa-tachometer-alt"></i> 传感器应用</div>
+                <div class="skill-tag"><i class="fas fa-sitemap"></i> PCB设计</div>
+                <div class="skill-tag"><i class="fas fa-chart-line"></i> 数据分析</div>
+                <div class="skill-tag"><i class="fas fa-mobile-alt"></i> 移动应用开发</div>
+                <div class="skill-tag"><i class="fab fa-github"></i> 开源项目管理</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系方式 -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>联系方式</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <i class="fab fa-github"></i>
+                    <h3>GitHub</h3>
+                    <p><a href="#" target="_blank">https://github.com/electronics-enthusiast</a></p>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <h3>邮箱</h3>
+                    <p><a href="mailto:contact@electronics-enthusiast.com">contact@electronics-enthusiast.com</a></p>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-weixin"></i>
+                    <h3>微信公众号</h3>
+                    <p>电子爱好者圈</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fab fa-zhihu"></i>
+                    <h3>知乎专栏</h3>
+                    <p><a href="#" target="_blank">电子技术学习笔记</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 电子爱好者 | 软硬件开发博客</p>
+        </div>
+    </footer>
+
+    <script>
+        // 汉堡菜单切换功能
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            // 切换图标
+            const icon = menuToggle.querySelector('i');
+            if (icon.classList.contains('fa-bars')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // 平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // 关闭移动端菜单
+                if (navLinks.classList.contains('active')) {
+                    navLinks.classList.remove('active');
+                    const icon = menuToggle.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80, // 减去导航栏高度
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 滚动监听，高亮当前导航项
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-links a');
+
+            let current = '';
+
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href').substring(1) === current) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // 添加滚动动画效果
+        function revealElements() {
+            const reveals = document.querySelectorAll('.project-card, .skill-tag, .contact-item');
+
+            reveals.forEach(element => {
+                const windowHeight = window.innerHeight;
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+
+                if (elementTop < windowHeight - elementVisible) {
+                    element.classList.add('revealed');
+                }
+            });
+        }
+
+        // 初始样式添加
+        document.addEventListener('DOMContentLoaded', () => {
+            // 为动画元素添加初始样式
+            const animatedElements = document.querySelectorAll('.project-card, .skill-tag, .contact-item');
+            animatedElements.forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            });
+
+            // 页面加载时触发一次
+            revealElements();
+        });
+
+        // 滚动时触发动画
+        window.addEventListener('scroll', revealElements);
+
+        // 添加revealed类的样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .project-card.revealed,
+            .skill-tag.revealed,
+            .contact-item.revealed {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            // 为小屏幕设备添加导航菜单样式
+            @media (max-width: 768px) {
+                .nav-links {
+                    position: fixed;
+                    top: 70px;
+                    left: 0;
+                    width: 100%;
+                    background-color: var(--dark-color);
+                    flex-direction: column;
+                    align-items: center;
+                    max-height: 0;
+                    overflow: hidden;
+                    transition: max-height 0.3s ease;
+                    padding: 0;
+                }
+                
+                .nav-links.active {
+                    max-height: 300px;
+                    padding: 1rem 0;
+                }
+                
+                .nav-links li {
+                    margin: 0.5rem 0;
+                }
+                
+                .nav-links a {
+                    display: block;
+                    width: 100%;
+                    text-align: center;
+                    padding: 0.8rem 0;
+                }
+            }
+            
+            // 高亮当前导航项
+            .nav-links a.active {
+                color: var(--secondary-color);
+                font-weight: 600;
+            }
+            
+            .nav-links a.active::after {
+                width: 100%;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+</html>
