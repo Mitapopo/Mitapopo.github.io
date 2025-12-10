@@ -44,20 +44,34 @@
             padding: 0 20px;
         }
 
-        /* 导航栏样式 */
-        header {
+        /* 应用容器 */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* 左侧导航栏样式 */
+        .sidebar {
             background-color: var(--dark-color);
             color: white;
+            width: 280px;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            height: 100vh;
             z-index: 1000;
             box-shadow: var(--box-shadow);
+            overflow-y: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        nav {
-            padding: 1rem 0;
+        .logo-container {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .logo h1 {
@@ -66,48 +80,100 @@
             color: var(--light-color);
         }
 
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 1.5rem;
+        .sidebar nav {
+            padding: 1rem 0;
         }
 
-        .nav-links a {
+        .sidebar .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
             color: var(--light-color);
             text-decoration: none;
             font-weight: 500;
-            transition: var(--transition);
-            padding: 0.5rem 0;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
             position: relative;
+            overflow: hidden;
         }
 
-        .nav-links a:hover {
+        .sidebar .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background-color: rgba(46, 204, 113, 0.1);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .sidebar .nav-link i {
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar .nav-link:hover i {
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link i {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.05);
             color: var(--secondary-color);
         }
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--secondary-color);
-            transition: var(--transition);
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--secondary-color);
+            border-left-color: var(--secondary-color);
         }
 
-        .nav-links a:hover::after {
-            width: 100%;
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        /* 页面内容容器 */
+        .page-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .page-content.active {
+            display: block;
+            opacity: 1;
         }
 
         /* 英雄区域样式 */
         .hero {
             background: linear-gradient(135deg, var(--dark-color) 0%, #34495e 100%);
             color: white;
-            padding: 10rem 0 6rem;
+            padding: 6rem 0;
             margin-top: 0;
             position: relative;
             overflow: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
         }
 
         .hero::before {
@@ -155,15 +221,39 @@
             border-radius: var(--border-radius);
             text-decoration: none;
             font-weight: 600;
-            transition: var(--transition);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
             background-color: #27ae60;
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 6px rgba(46, 204, 113, 0.3);
         }
 
         /* 通用部分样式 */
@@ -229,12 +319,29 @@
             border-radius: var(--border-radius);
             overflow: hidden;
             box-shadow: var(--box-shadow);
-            transition: var(--transition);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
 
         .project-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .project-card:hover::before {
+            transform: scaleX(1);
         }
 
         .project-image {
@@ -314,17 +421,35 @@
             padding: 0.8rem 1.5rem;
             border-radius: 30px;
             font-weight: 500;
-            transition: var(--transition);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             gap: 0.5rem;
             box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-tag::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
         }
 
         .skill-tag:hover {
-            transform: translateY(-3px);
+            transform: translateY(-3px) scale(1.05);
             background-color: #2980b9;
             box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .skill-tag:hover::after {
+            transform: translateX(100%);
         }
 
         /* 联系方式样式 */
@@ -355,12 +480,39 @@
             padding: 1.5rem;
             background-color: rgba(255, 255, 255, 0.05);
             border-radius: var(--border-radius);
-            transition: var(--transition);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 0%, rgba(46, 204, 113, 0.1) 50%, transparent 100%);
+            transform: scaleX(0);
+            transition: transform 0.5s ease;
         }
 
         .contact-item:hover {
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-5px);
+        }
+
+        .contact-item:hover::before {
+            transform: scaleX(1);
+        }
+
+        .contact-item i {
+            transition: transform 0.3s ease;
+        }
+
+        .contact-item:hover i {
+            transform: scale(1.2) rotate(5deg);
+        }
         }
 
         .contact-item i {
@@ -393,9 +545,29 @@
         }
 
         /* 响应式设计 */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
+            .sidebar {
+                transform: translateX(-100%);
+                width: 250px;
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
             }
 
             .hero h2 {
@@ -411,205 +583,251 @@
             }
         }
 
-        /* 添加响应式汉堡菜单图标 */
+        /* 汉堡菜单按钮 */
         .menu-toggle {
-            display: none;
             font-size: 1.5rem;
             background: none;
             border: none;
             color: var(--light-color);
             cursor: pointer;
+            display: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1001;
+        }
+
+        .menu-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .menu-toggle:active {
+            transform: scale(0.95);
         }
 
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
             }
+        }
 
-            nav {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
+        /* 移动端导航遮罩 */
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+            opacity: 1;
         }
     </style>
 </head>
 
 <body>
-    <!-- 导航栏 -->
-    <header>
-        <nav>
-            <div class="container">
+    <div class="app-container">
+        <!-- 左侧导航栏 -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
                 <div class="logo">
                     <h1>电子爱好者</h1>
                 </div>
                 <button class="menu-toggle" id="menuToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <ul class="nav-links" id="navLinks">
-                    <li><a href="#about">关于我</a></li>
-                    <li><a href="#projects">项目</a></li>
-                    <li><a href="#skills">技能</a></li>
-                    <li><a href="#contact">联系方式</a></li>
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="#home" class="nav-link active"><i class="fas fa-home"></i> 首页</a></li>
+                    <li><a href="#about" class="nav-link"><i class="fas fa-user"></i> 关于我</a></li>
+                    <li><a href="#projects" class="nav-link"><i class="fas fa-project-diagram"></i> 项目</a></li>
+                    <li><a href="#skills" class="nav-link"><i class="fas fa-tools"></i> 技能</a></li>
+                    <li><a href="#contact" class="nav-link"><i class="fas fa-envelope"></i> 联系方式</a></li>
                 </ul>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </aside>
 
-    <!-- 英雄区域 -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h2>你好，我是<span class="highlight">电子爱好者</span></h2>
-                <p>软硬件开发者 | 嵌入式系统工程师 | DIY创客</p>
-                <a href="#projects" class="btn">查看我的项目</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- 关于我 -->
-    <section id="about" class="about">
-        <div class="container">
-            <h2>关于我</h2>
-            <div class="about-content">
-                <div class="about-image">
-                    <div
-                        style="width: 250px; height: 250px; background-color: var(--primary-color); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 8rem;">
-                        <i class="fas fa-microchip"></i>
-                    </div>
-                </div>
-                <div class="about-text">
-                    <p>你好！我是一名热衷于电子技术的软硬件开发者，拥有多年嵌入式系统开发经验。我专注于将复杂的技术概念转化为实用的电子项目，并通过开源社区分享我的知识。</p>
-                    <p>我的技术栈涵盖Arduino、树莓派、ESP32等开源硬件平台，以及C/C++、Python、JavaScript等编程语言。我特别擅长设计智能家居系统、物联网设备和自动化控制方案。</p>
-                    <p>在这个博客中，你可以找到详细的项目教程、电路设计指南、编程技巧分享以及最新的电子技术资讯。欢迎与我交流讨论！</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 项目展示 -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <h2>我的项目</h2>
-            <div class="project-grid">
-                <!-- 项目1：智能家居控制系统 -->
-                <div class="project-card">
-                    <div
-                        style="width: 100%; height: 200px; background-color: #3498db; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                        <i class="fas fa-home"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>基于ESP32的智能家居系统</h3>
-                        <p>一个使用ESP32开发的全面智能家居控制系统，支持灯光控制、温度监控、安防报警等功能，可通过手机APP远程控制。</p>
-                        <div class="project-tags">
-                            <span class="project-tag">ESP32</span>
-                            <span class="project-tag">物联网</span>
-                            <span class="project-tag">Arduino</span>
-                            <span class="project-tag">传感器</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">查看详情</a>
-                            <a href="#" class="project-link">GitHub</a>
+        <!-- 主内容区域 -->
+        <main class="main-content">
+            <!-- 首页内容 -->
+            <div id="home" class="page-content active">
+                <section class="hero">
+                    <div class="container">
+                        <div class="hero-content">
+                            <h2>你好，我是<span class="highlight">电子爱好者</span></h2>
+                            <p>软硬件开发者 | 嵌入式系统工程师 | DIY创客</p>
+                            <a href="#projects" class="btn">查看我的项目</a>
                         </div>
                     </div>
-                </div>
-
-                <!-- 项目2：树莓派天气站 -->
-                <div class="project-card">
-                    <div
-                        style="width: 100%; height: 200px; background-color: #2ecc71; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                        <i class="fas fa-cloud-sun"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>树莓派自动气象站</h3>
-                        <p>使用树莓派和多种传感器构建的自动气象站，可以实时监测温度、湿度、气压、风速等数据，并将数据上传到云端进行分析和展示。</p>
-                        <div class="project-tags">
-                            <span class="project-tag">树莓派</span>
-                            <span class="project-tag">Python</span>
-                            <span class="project-tag">气象站</span>
-                            <span class="project-tag">数据分析</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">查看详情</a>
-                            <a href="#" class="project-link">GitHub</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 项目3：Arduino机器人 -->
-                <div class="project-card">
-                    <div
-                        style="width: 100%; height: 200px; background-color: #e74c3c; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <div class="project-content">
-                        <h3>Arduino智能循迹机器人</h3>
-                        <p>基于Arduino开发的智能循迹机器人，配备红外传感器进行路径识别，支持避障功能和蓝牙遥控，适合初学者学习机器人编程。</p>
-                        <div class="project-tags">
-                            <span class="project-tag">Arduino</span>
-                            <span class="project-tag">机器人</span>
-                            <span class="project-tag">传感器</span>
-                            <span class="project-tag">C++</span>
-                        </div>
-                        <div class="project-links">
-                            <a href="#" class="project-link">查看详情</a>
-                            <a href="#" class="project-link">GitHub</a>
-                        </div>
-                    </div>
-                </div>
+                </section>
             </div>
-        </div>
-    </section>
 
-    <!-- 技能 -->
-    <section id="skills" class="skills">
-        <div class="container">
-            <h2>技能</h2>
-            <div class="skills-container">
-                <div class="skill-tag"><i class="fab fa-arduino"></i> Arduino开发</div>
-                <div class="skill-tag"><i class="fab fa-raspberry-pi"></i> 树莓派开发</div>
-                <div class="skill-tag"><i class="fas fa-microchip"></i> ESP32/ESP8266</div>
-                <div class="skill-tag"><i class="fas fa-code"></i> C/C++编程</div>
-                <div class="skill-tag"><i class="fab fa-python"></i> Python编程</div>
-                <div class="skill-tag"><i class="fas fa-wifi"></i> 物联网技术</div>
-                <div class="skill-tag"><i class="fas fa-robot"></i> 机器人编程</div>
-                <div class="skill-tag"><i class="fas fa-tachometer-alt"></i> 传感器应用</div>
-                <div class="skill-tag"><i class="fas fa-sitemap"></i> PCB设计</div>
-                <div class="skill-tag"><i class="fas fa-chart-line"></i> 数据分析</div>
-                <div class="skill-tag"><i class="fas fa-mobile-alt"></i> 移动应用开发</div>
-                <div class="skill-tag"><i class="fab fa-github"></i> 开源项目管理</div>
+            <!-- 关于我页面 -->
+            <div id="about" class="page-content">
+                <section class="about">
+                    <div class="container">
+                        <h2>关于我</h2>
+                        <div class="about-content">
+                            <div class="about-image">
+                                <div
+                                    style="width: 250px; height: 250px; background-color: var(--primary-color); border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-size: 8rem;">
+                                    <i class="fas fa-microchip"></i>
+                                </div>
+                            </div>
+                            <div class="about-text">
+                                <p>你好！我是一名热衷于电子技术的软硬件开发者，拥有多年嵌入式系统开发经验。我专注于将复杂的技术概念转化为实用的电子项目，并通过开源社区分享我的知识。</p>
+                                <p>我的技术栈涵盖Arduino、树莓派、ESP32等开源硬件平台，以及C/C++、Python、JavaScript等编程语言。我特别擅长设计智能家居系统、物联网设备和自动化控制方案。
+                                </p>
+                                <p>在这个博客中，你可以找到详细的项目教程、电路设计指南、编程技巧分享以及最新的电子技术资讯。欢迎与我交流讨论！</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </div>
-    </section>
 
-    <!-- 联系方式 -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2>联系方式</h2>
-            <div class="contact-info">
-                <div class="contact-item">
-                    <i class="fab fa-github"></i>
-                    <h3>GitHub</h3>
-                    <p><a href="#" target="_blank">https://github.com/electronics-enthusiast</a></p>
-                </div>
-                <div class="contact-item">
-                    <i class="fas fa-envelope"></i>
-                    <h3>邮箱</h3>
-                    <p><a href="mailto:contact@electronics-enthusiast.com">contact@electronics-enthusiast.com</a></p>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-weixin"></i>
-                    <h3>微信公众号</h3>
-                    <p>电子爱好者圈</p>
-                </div>
-                <div class="contact-item">
-                    <i class="fab fa-zhihu"></i>
-                    <h3>知乎专栏</h3>
-                    <p><a href="#" target="_blank">电子技术学习笔记</a></p>
-                </div>
+            <!-- 项目页面 -->
+            <div id="projects" class="page-content">
+                <section class="projects">
+                    <div class="container">
+                        <h2>我的项目</h2>
+                        <div class="project-grid">
+                            <!-- 项目1：智能家居控制系统 -->
+                            <div class="project-card">
+                                <div
+                                    style="width: 100%; height: 200px; background-color: #3498db; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="project-content">
+                                    <h3>基于ESP32的智能家居系统</h3>
+                                    <p>一个使用ESP32开发的全面智能家居控制系统，支持灯光控制、温度监控、安防报警等功能，可通过手机APP远程控制。</p>
+                                    <div class="project-tags">
+                                        <span class="project-tag">ESP32</span>
+                                        <span class="project-tag">物联网</span>
+                                        <span class="project-tag">Arduino</span>
+                                        <span class="project-tag">传感器</span>
+                                    </div>
+                                    <div class="project-links">
+                                        <a href="#" class="project-link">查看详情</a>
+                                        <a href="#" class="project-link">GitHub</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 项目2：树莓派天气站 -->
+                            <div class="project-card">
+                                <div
+                                    style="width: 100%; height: 200px; background-color: #2ecc71; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                    <i class="fas fa-cloud-sun"></i>
+                                </div>
+                                <div class="project-content">
+                                    <h3>树莓派自动气象站</h3>
+                                    <p>使用树莓派和多种传感器构建的自动气象站，可以实时监测温度、湿度、气压、风速等数据，并将数据上传到云端进行分析和展示。</p>
+                                    <div class="project-tags">
+                                        <span class="project-tag">树莓派</span>
+                                        <span class="project-tag">Python</span>
+                                        <span class="project-tag">气象站</span>
+                                        <span class="project-tag">数据分析</span>
+                                    </div>
+                                    <div class="project-links">
+                                        <a href="#" class="project-link">查看详情</a>
+                                        <a href="#" class="project-link">GitHub</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 项目3：Arduino机器人 -->
+                            <div class="project-card">
+                                <div
+                                    style="width: 100%; height: 200px; background-color: #e74c3c; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="project-content">
+                                    <h3>Arduino智能循迹机器人</h3>
+                                    <p>基于Arduino开发的智能循迹机器人，配备红外传感器进行路径识别，支持避障功能和蓝牙遥控，适合初学者学习机器人编程。</p>
+                                    <div class="project-tags">
+                                        <span class="project-tag">Arduino</span>
+                                        <span class="project-tag">机器人</span>
+                                        <span class="project-tag">传感器</span>
+                                        <span class="project-tag">C++</span>
+                                    </div>
+                                    <div class="project-links">
+                                        <a href="#" class="project-link">查看详情</a>
+                                        <a href="#" class="project-link">GitHub</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </div>
-    </section>
+
+            <!-- 技能页面 -->
+            <div id="skills" class="page-content">
+                <section class="skills">
+                    <div class="container">
+                        <h2>技能</h2>
+                        <div class="skills-container">
+                            <div class="skill-tag"><i class="fab fa-arduino"></i> Arduino开发</div>
+                            <div class="skill-tag"><i class="fab fa-raspberry-pi"></i> 树莓派开发</div>
+                            <div class="skill-tag"><i class="fas fa-microchip"></i> ESP32/ESP8266</div>
+                            <div class="skill-tag"><i class="fas fa-code"></i> C/C++编程</div>
+                            <div class="skill-tag"><i class="fab fa-python"></i> Python编程</div>
+                            <div class="skill-tag"><i class="fas fa-wifi"></i> 物联网技术</div>
+                            <div class="skill-tag"><i class="fas fa-robot"></i> 机器人编程</div>
+                            <div class="skill-tag"><i class="fas fa-tachometer-alt"></i> 传感器应用</div>
+                            <div class="skill-tag"><i class="fas fa-sitemap"></i> PCB设计</div>
+                            <div class="skill-tag"><i class="fas fa-chart-line"></i> 数据分析</div>
+                            <div class="skill-tag"><i class="fas fa-mobile-alt"></i> 移动应用开发</div>
+                            <div class="skill-tag"><i class="fab fa-github"></i> 开源项目管理</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 联系方式页面 -->
+            <div id="contact" class="page-content">
+                <section class="contact">
+                    <div class="container">
+                        <h2>联系方式</h2>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fab fa-github"></i>
+                                <h3>GitHub</h3>
+                                <p><a href="#" target="_blank">https://github.com/electronics-enthusiast</a></p>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <h3>邮箱</h3>
+                                <p><a
+                                        href="mailto:contact@electronics-enthusiast.com">contact@electronics-enthusiast.com</a>
+                                </p>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fab fa-weixin"></i>
+                                <h3>微信公众号</h3>
+                                <p>电子爱好者圈</p>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fab fa-zhihu"></i>
+                                <h3>知乎专栏</h3>
+                                <p><a href="#" target="_blank">电子技术学习笔记</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
 
     <!-- 页脚 -->
     <footer>
@@ -618,73 +836,71 @@
         </div>
     </footer>
 
-    <script>
-        // 汉堡菜单切换功能
-        const menuToggle = document.getElementById('menuToggle');
-        const navLinks = document.getElementById('navLinks');
+    <!-- 移动端导航遮罩层 -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
 
+    <script>
+        // 获取DOM元素
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pageContents = document.querySelectorAll('.page-content');
+
+        // 汉堡菜单切换功能
         menuToggle.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-            // 切换图标
-            const icon = menuToggle.querySelector('i');
-            if (icon.classList.contains('fa-bars')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+            sidebar.classList.toggle('active');
+            mobileOverlay.classList.toggle('active');
+        });
+
+        // 点击遮罩层关闭侧边栏
+        mobileOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            mobileOverlay.classList.remove('active');
+        });
+
+        // 页面切换功能
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+
+                // 获取目标页面ID
+                const targetId = link.getAttribute('href').substring(1);
+
+                // 移除所有活动状态
+                navLinks.forEach(item => item.classList.remove('active'));
+                pageContents.forEach(page => page.classList.remove('active'));
+
+                // 添加当前活动状态
+                link.classList.add('active');
+                const targetPage = document.getElementById(targetId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                }
+
+                // 在移动设备上点击导航后关闭侧边栏
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    mobileOverlay.classList.remove('active');
+                }
+
+                // 滚动到页面顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // 重置并重新触发动画
+                resetAnimations();
+            });
+        });
+
+        // 响应式处理
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                mobileOverlay.classList.remove('active');
             }
         });
 
-        // 平滑滚动效果
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                // 关闭移动端菜单
-                if (navLinks.classList.contains('active')) {
-                    navLinks.classList.remove('active');
-                    const icon = menuToggle.querySelector('i');
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-
-                if (targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80, // 减去导航栏高度
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        // 滚动监听，高亮当前导航项
-        window.addEventListener('scroll', () => {
-            const sections = document.querySelectorAll('section');
-            const navItems = document.querySelectorAll('.nav-links a');
-
-            let current = '';
-
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= sectionTop - 100) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('href').substring(1) === current) {
-                    item.classList.add('active');
-                }
-            });
-        });
-
-        // 添加滚动动画效果
+        // 滚动动画效果
         function revealElements() {
             const reveals = document.querySelectorAll('.project-card, .skill-tag, .contact-item');
 
@@ -712,6 +928,19 @@
             // 页面加载时触发一次
             revealElements();
         });
+
+        // 页面切换时重新触发动画
+        function resetAnimations() {
+            const animatedElements = document.querySelectorAll('.project-card, .skill-tag, .contact-item');
+            animatedElements.forEach(element => {
+                element.classList.remove('revealed');
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+            });
+
+            // 短暂延迟后重新触发动画
+            setTimeout(revealElements, 100);
+        }
 
         // 滚动时触发动画
         window.addEventListener('scroll', revealElements);
@@ -764,12 +993,35 @@
                 color: var(--secondary-color);
                 font-weight: 600;
             }
-            
-            .nav-links a.active::after {
-                width: 100%;
-            }
         `;
         document.head.appendChild(style);
+
+        // 优化的滚动监听，高亮当前导航项
+        window.addEventListener('scroll', () => {
+            // 只在主内容区滚动时处理
+            if (window.innerWidth > 768) {
+                const sections = document.querySelectorAll('section');
+                const navItems = document.querySelectorAll('.nav-link');
+
+                let current = '';
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (window.scrollY >= sectionTop - 150) {
+                        current = section.parentElement.getAttribute('id');
+                    }
+                });
+
+                if (current) {
+                    navItems.forEach(item => {
+                        item.classList.remove('active');
+                        if (item.getAttribute('href') === '#' + current) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            }
+        });
     </script>
 </body>
 
